@@ -50,6 +50,18 @@ async def start(message: types.Message, state: FSMContext):
           channels = [user['necessary_channel']['id']]
           ch_in = f'<a href="{user["necessary_channel"]["link"]}">{user["necessary_channel"]["title"]}</a>'
 
+  arg = message.get_args()
+  if arg:
+    user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_id})
+
+    if user.get('new_user') == True:
+
+      link = await connect_bd.mongo_conn.db.links.find_one({'link_id': int(arg), 'deleted': False})
+
+      await connect_bd.mongo_conn.db.links.update_one({'link_id': int(arg)}, {'$set': {'invited_number': int(link.get('invited_number')) + 1}})
+
+      await connect_bd.mongo_conn.db.users.update_one({'user_id': user_id}, {'$set': {'new_user': False}})
+
   # sub = await check_sub(user_id, channels)
   if False:#sub != len(channels):
     m = await keyboard.subscribe_channel(user_id, channel_in1, ch_in)

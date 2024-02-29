@@ -1,0 +1,8 @@
+configobj~=5.0.8
+aiogram~=2.25.1
+aiohttp~=3.8.5
+motor~=3.2.0
+aiofiles~=23.1.0
+websocket-client~=1.6.1
+aioschedule~=0.5.2
+YooMoney~=0.1.0

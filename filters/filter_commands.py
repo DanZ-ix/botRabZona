@@ -17,7 +17,7 @@ class isInviteUser(BoundFilter):
           user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_id_reward})
           if user:
             is_inv = user.get('invite_count_now')
-            if is_inv == None:
+            if is_inv is None:
               await connect_bd.mongo_conn.db.users.update_one({'user_id': user_id_reward},
                 {'$set': {'invite_count_now': 0}})
               invite_count = 0
@@ -56,23 +56,27 @@ class isInviteUser(BoundFilter):
 
     return True
 
+
 class isUser(BoundFilter):
   async def check(self, message: types.Message):
     chat, user_id = 'message' in message and message.message.chat.id or message.chat.id, str(message.from_user.id)
     fullname = message.from_user.full_name
     username = message.from_user.username or ''
 
-    if connect_bd.mongo_conn.users.get(user_id) == None:
-      obj = {'user_id': user_id, 'fullname': fullname, 'username': username, 'history': {}, 'dialogs': [], 'date': datetime.now(), 'message_filters': [], 'attempts_free': 1, 'attempts_pay': 0, 'attempts_channel': []}
+    if connect_bd.mongo_conn.users.get(user_id) is None:
+      obj = {'user_id': user_id, 'fullname': fullname, 'username': username, 'history': {}, 'dialogs': [], 'date': datetime.now(), 'message_filters': [], 'attempts_free': 1, 'attempts_pay': 0, 'attempts_channel': [], 'new_user': True}
       connect_bd.mongo_conn.users[user_id] = {'fullname': fullname, 'username': username}
+
       await connect_bd.mongo_conn.db.users.insert_one(obj)
     else:
+      await connect_bd.mongo_conn.db.users.update_one({'user_id': int(user_id)}, {'$set': {'new_user': False}})
       if connect_bd.mongo_conn.users[user_id]['username'] != username or connect_bd.mongo_conn.users[user_id]['fullname'] != fullname:
         connect_bd.mongo_conn.users[user_id]['username'] = username
         connect_bd.mongo_conn.users[user_id]['fullname'] = fullname
         await connect_bd.mongo_conn.db.users.update_one({'user_id': user_id}, {'$set': {'username': username, 'fullname': fullname}})
 
     return True
+
 
 class EngineerWorks(BoundFilter):
   async def check(self, message: types.Message):
