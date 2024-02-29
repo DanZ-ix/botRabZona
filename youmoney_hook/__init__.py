@@ -1,0 +1,1 @@
+from youmoney_hook import webhook
