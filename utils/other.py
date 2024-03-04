@@ -52,6 +52,7 @@ class OtherCommands():
           self.types.BotCommand("channels_necessary", "Управление каналами для обязательной подписки"),
           self.types.BotCommand("show_links", "Показать реферальные ссылки"),
           self.types.BotCommand("add_link", "Добавить ссылку"),
+          self.types.BotCommand("toggle_add_to_channel", "Переключить прием в канал"),
           self.types.BotCommand("black_list", "🔞 Запретные слова"),
           self.types.BotCommand("restart", "🔄 Перезагрузка бота")
         ], self.types.bot_command_scope.BotCommandScopeChat(id))

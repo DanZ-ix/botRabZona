@@ -8,6 +8,7 @@ from aiogram.contrib.fsm_storage.mongo import MongoStorage
 
 from mongodb import connect_bd
 from utils import other_commands, other_func, state_profile, start_state, imagine_state, gpt_state, accounts_state, queues_state, banlist_state, mailing_state, channels_state, channels_necessary_state, keyboard, throttling
+from utils.bot_state import BotState
 from data.config import bot_token, channel_subscribe, attempts_channels, server_ip, conf, welcome_message, account_number
 from data.config import dc_host_api, midjorny_error_text
 from data.config import gpt_host_api, dialog_max_tokens, invite_count_max_to_day, channel_in, channel_in1, channels_auto_join
@@ -22,7 +23,7 @@ isChat = filters.IDFilter
 logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s %(name)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 logging.getLogger('aiohttp').setLevel(logging.ERROR)
 
-
+bot_state = BotState()
 dc_api = dc_api.DiscordApi(dc_host_api, server_ip)
 gpt_api = gpt_api.gptApi(gpt_host_api, dialog_max_tokens)
 
