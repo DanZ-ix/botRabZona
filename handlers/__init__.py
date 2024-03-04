@@ -1,7 +1,7 @@
 # from handlers.auto_comments_answer import dp
 from handlers.callback_capcha import dp
 from handlers.auto_join_to_channel import dp
-from handlers.admin_comands import dp
+
 from handlers.get_subscribe_attem_ch import dp
 
 from handlers.restart import dp
