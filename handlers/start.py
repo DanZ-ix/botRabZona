@@ -5,83 +5,14 @@ from loader import dp, types, connect_bd, start_state, gpt_state, imagine_state,
 from filters.filter_commands import isUser, isSubscribe, clearDownKeyboard, isInviteUser
 
 
-async def check_sub(user_id, ch):
-  sub = 0
-  for chat_id in ch:
-    ch = await bot.get_chat_member(chat_id, user_id)
-
-    if ch.status in ['creator', 'administrator', 'member']:
-      sub += 1
-
-  return sub
-
-@dp.message_handler(isInviteUser(), isUser(), clearDownKeyboard(), commands=['start'], state="*")
+@dp.message_handler(isUser(), isSubscribe(), clearDownKeyboard(), commands=['start'], state="*")
 @rate_limit(2, 'start')
 async def start(message: types.Message, state: FSMContext):
   chat, fullname, username, user_id = message.chat.id, message.from_user.full_name, message.from_user.username and f"@{message.from_user.username}" or "", str(message.from_user.id)
-  user_data = await state.get_data()
 
-  channels = channel_subscribe
-  ch_in = channel_in
-
-  args = message.get_args()
-
-  if args:
-    if user_data.get('bot_link_user') == True:
-      is_necessary_subs = await connect_bd.mongo_conn.db.channels_necessary_subscribe.find_one({'bot_link': f'https://t.me/{bot["username"]}?start={args}'})
-      if is_necessary_subs:
-        async with state.proxy() as d:
-          del d['bot_link_user']
-          await connect_bd.mongo_conn.db.users.update_one({'user_id': user_id}, {'$set': {'necessary_channel': is_necessary_subs}})
-          channels = [is_necessary_subs['id']]
-          ch_in = f'<a href="{is_necessary_subs["link"]}">{is_necessary_subs["title"]}</a>'
-    else:
-      user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_id})
-      if user:
-        if user.get('necessary_channel'):
-          channels = [user['necessary_channel']['id']]
-          ch_in = f'<a href="{user["necessary_channel"]["link"]}">{user["necessary_channel"]["title"]}</a>'
-
-  else:
-    if user_data.get('bot_link_user') == None:
-      user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_id})
-      if user:
-        if user.get('necessary_channel'):
-          channels = [user['necessary_channel']['id']]
-          ch_in = f'<a href="{user["necessary_channel"]["link"]}">{user["necessary_channel"]["title"]}</a>'
-
-  arg = message.get_args()
-  if arg:
-    user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_id})
-
-    if user.get('new_user') == True:
-
-      link = await connect_bd.mongo_conn.db.links.find_one({'link_id': int(arg), 'deleted': False})
-
-      await connect_bd.mongo_conn.db.links.update_one({'link_id': int(arg)}, {'$set': {'invited_number': int(link.get('invited_number')) + 1}})
-
-      await connect_bd.mongo_conn.db.users.update_one({'user_id': user_id}, {'$set': {'new_user': False}})
-
-  # sub = await check_sub(user_id, channels)
-  if False:#sub != len(channels):
-    m = await keyboard.subscribe_channel(user_id, channel_in1, ch_in)
-    await bot.send_message(chat, f'<b>Привет! Это бот предоставляющий доступ к нейросети ChatGPT.</b>\n\nДля дальнейшего использования бота подпишись на наши канал, чтобы быть в курсе событий\n\n1. {ch_in}', reply_markup=m, disable_web_page_preview=True, parse_mode='html')
-
-    user_invite_id = message.get_args()
-    if user_invite_id:
-      if user_data.get('new_invite_user') == True:
-        user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_invite_id})
-        await state.update_data(user_invite_id=user_invite_id)
-        await asyncio.sleep(1.5)
-        await bot.send_message(chat,
-          f'Подпишитесь на канал и я начислю <b>{user["fullname"]}</b> попытку для Midjourney нейросети',
-          parse_mode='html')
-
-    await start_state.check_subscribe.set()
-  else:
-    m = await keyboard.call_gpt()
-    await bot.send_message(chat, welcome_message, reply_markup=m, parse_mode='html')
-    await start_state.select_neiro.set()
+  m = await keyboard.call_gpt()
+  await bot.send_message(chat, welcome_message, reply_markup=m, parse_mode='html')
+  await start_state.select_neiro.set()
 
 
 @dp.callback_query_handler(isUser(), clearDownKeyboard(), isSubscribe(), state=start_state.check_subscribe)

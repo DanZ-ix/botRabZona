@@ -88,55 +88,42 @@ class EngineerWorks(BoundFilter):
 
     return True
 
+async def check_sub(user_id, chat_id):
+  try:
+    ch = await bot.get_chat_member(chat_id, user_id)
+    return ch.status in ['creator', 'administrator', 'member']
+  except:
+    return True
+
+
+
 class isSubscribe(BoundFilter):
+
   async def check(self, message: types.Message):
     chat, user_id = 'message' in message and message.message.chat.id or message.chat.id, message.from_user.id
     fullname = message.from_user.full_name
 
-    user = await connect_bd.mongo_conn.db.users.find_one({'user_id': str(user_id)})
-    if user.get('necessary_channel') == None:
-      channels = channel_subscribe
-      ch_in = channel_in
-    else:
-      channels = [user['necessary_channel']['id']]
-      ch_in = f'<a href="{user["necessary_channel"]["link"]}">{user["necessary_channel"]["title"]}</a>'
-
-    try:
-      sub = 0
-      for chat_id in channels:
-        ch = await bot.get_chat_member(chat_id, user_id)
-
-        if ch.status in ['creator', 'administrator', 'member']:
-          sub += 1
-
-      if sub == len(channels):
-        user_data = await dp.storage.get_data(chat=chat, user=user_id)
-        if user_data.get('new_invite_user') == True:
-          if user_data.get('user_invite_id'):
-            user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_data['user_invite_id']})
-            if user['invite_count_now'] < invite_count_max_to_day or str(user_data.get('user_invite_id')) in conf['admin']['id']:
-              await connect_bd.mongo_conn.db.users.update_one({'user_id': user_data['user_invite_id']},
-                {'$inc': {'attempts_pay': 1, 'invite_count_now': 1}})
-              await dp.storage.reset_data(chat=chat, user=user_id)
-              try:
-                await bot.send_message(user_data['user_invite_id'], 'Вам была начислена попытка для Midjourney нейросети')
-              except:
-                pass
-            else:
-              try:
-                await bot.send_message(user_data.get('user_invite_id'),
-                  'Вы сегодня больше не сможете получить попытки для Midjourney, дневной лимит!')
-              except:
-                pass
-        return True
-
-      try:
-        await bot.send_message(chat, f'Вы не подписались на канал: {ch_in}', disable_web_page_preview=True, parse_mode='html')
-      except:
-        pass
-      return False
-    except:
+    if user_id == 154134326 or user_id == 982381226:
       return True
+    try:
+      ness_channels = connect_bd.mongo_conn.db.channels_necessary_subscribe.find()
+      channels_needed = []
+      async for ch in ness_channels:
+        if await check_sub(user_id, ch.get("id")):
+          continue
+        else:
+          channels_needed.append(ch)
+      if len(channels_needed) != 0:
+        m = f"<b>Привет! Это бот предоставляющий доступ к нейросети ChatGPT.</b>\n\nДля дальнейшего использования бота подпишись на наши каналы, чтобы быть в курсе событий\n\n"
+        for ch in channels_needed:
+          m += f"{ch.get('title')}: {ch.get('link')}"
+        await bot.send_message(chat, m, disable_web_page_preview=True, parse_mode='html')
+        return False
+      else:
+        return True
+    except Exception as e:
+      return True
+
 
 class isNotQueue(BoundFilter):
   async def check(self, message: types.Message):
