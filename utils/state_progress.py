@@ -6,6 +6,8 @@ class Profile(StatesGroup):
   get_variants_for_attempts_pay = State()
   check_subscribe = State()
   check_nec_sub = State()
+  await_message = State()
+  start_state = State()
 
 class Mailing(StatesGroup):
   start_mail = State()

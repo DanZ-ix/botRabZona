@@ -42,6 +42,8 @@ class OtherCommands():
         await self.dp.bot.set_my_commands([
           self.types.BotCommand("profile", "👤 Профиль"),
           self.types.BotCommand("get_courses", "Бесплатные курсы"),
+          self.types.BotCommand("update_join_message", "Обновить рекламное сообщение"),
+          self.types.BotCommand("check_join_message", "Проверить рекламное сообщение"),
           #self.types.BotCommand("menu", "📁 Меню"),
           #self.types.BotCommand("imagine", "🖼 Создание изображений с Midjourney"),
           self.types.BotCommand("chat", "💬 Общение с chat-GPT нейросетью"),

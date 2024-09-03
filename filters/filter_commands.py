@@ -103,8 +103,6 @@ class isSubscribe(BoundFilter):
     chat, user_id = 'message' in message and message.message.chat.id or message.chat.id, message.from_user.id
     fullname = message.from_user.full_name
 
-    if user_id == 154134326 or user_id == 982381226:
-      return True
     try:
       ness_channels = connect_bd.mongo_conn.db.channels_necessary_subscribe.find()
       channels_needed = []
@@ -117,12 +115,15 @@ class isSubscribe(BoundFilter):
         m = f"<b>Привет! Это бот предоставляющий доступ к нейросети ChatGPT.</b>\n\nДля дальнейшего использования бота подпишись на наши каналы, чтобы быть в курсе событий\n\n"
         for ch in channels_needed:
           m += f"{ch.get('title')}: {ch.get('link')}"
+        m += "\nJobster| Work из дома: https://t.me/+DnmJO_z9bIZkMTZi"
         await bot.send_message(chat, m, disable_web_page_preview=True, parse_mode='html')
         return False
       else:
         return True
     except Exception as e:
+      print("Exception", e)
       return True
+
 
 
 class isNotQueue(BoundFilter):

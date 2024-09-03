@@ -28,6 +28,14 @@ class aio_keyboard:
 
     return keyboard
 
+  async def get_links_auto_join(self):
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    keyboard.add(*[
+      {'text': 'Получить 8.000 р', 'url': f'https://t.me/+fmNpoDfqMcVhOWIy'},
+      {'text': 'МЕСТ ОСТАЛОСЬ 139/150', 'url': f'https://t.me/+fmNpoDfqMcVhOWIy'}
+    ])
+    return keyboard
+
 
 
   async def call_gpt(self):
