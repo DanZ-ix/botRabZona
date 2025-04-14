@@ -115,7 +115,6 @@ class isSubscribe(BoundFilter):
         m = f"<b>Привет! Это бот предоставляющий доступ к нейросети ChatGPT.</b>\n\nДля дальнейшего использования бота подпишись на наши каналы, чтобы быть в курсе событий\n\n"
         for ch in channels_needed:
           m += f"{ch.get('title')}: {ch.get('link')}"
-        m += "\nJobster| Work из дома: https://t.me/+DnmJO_z9bIZkMTZi"
         await bot.send_message(chat, m, disable_web_page_preview=True, parse_mode='html')
         return False
       else:

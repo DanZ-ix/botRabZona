@@ -115,13 +115,20 @@ async def check_join_message(message: types.Message, state: FSMContext):
         message.from_user.id)
     try:
         message_dict = await connect_bd.mongo_conn.db.saved_messages.find_one({"message_id": {"$gt": 0}})
-        new_message = types.Message.to_object(message_dict)
+        if message_dict is not None:
+            try:
+                new_message = types.Message.to_object(message_dict)
+                file_json = sorted(new_message.photo, key=lambda d: d['file_size'])[-1]
 
-        file_json = sorted(new_message.photo, key=lambda d: d['file_size'])[-1]
-
-        file = await bot.download_file_by_id(file_json.file_id)
-        await bot.send_photo(user_id, file, caption=new_message.caption, caption_entities=new_message.caption_entities,
-                             reply_markup=new_message.reply_markup)
+                file = await bot.download_file_by_id(file_json.file_id)
+                await bot.send_photo(user_id, file, caption=new_message.caption,
+                                     caption_entities=new_message.caption_entities,
+                                     reply_markup=new_message.reply_markup, disable_web_page_preview=True)
+            except Exception:
+                new_message = types.Message.to_object(message_dict)
+                await bot.send_message(user_id, new_message.text,
+                                       entities=new_message.entities,
+                                       reply_markup=new_message.reply_markup, disable_web_page_preview=True)
     except Exception as e:
         print(e)
 
