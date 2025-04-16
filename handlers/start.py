@@ -11,6 +11,8 @@ from filters.filter_commands import isUser, isSubscribe, clearDownKeyboard, isIn
 async def start(message: types.Message, state: FSMContext):
     chat, fullname, username, user_id = message.chat.id, message.from_user.full_name, message.from_user.username and f"@{message.from_user.username}" or "", str(
         message.from_user.id)
+    if chat in user_states:
+        user_states[chat]["stop"] = True
 
     m = await keyboard.call_gpt()
     await bot.send_message(chat, welcome_message, reply_markup=m, parse_mode='html')
@@ -22,8 +24,7 @@ async def start(message: types.Message, state: FSMContext):
 async def callback_data(message: types.CallbackQuery, state: FSMContext):
     chat, message_id = str(message.message.chat.id), message.message.message_id
     user_data = await state.get_data()
-    if chat in user_states:
-        user_states[chat]["stop"] = True
+
 
     m = await keyboard.select_neural_net()
     await bot.send_message(chat, welcome_message, reply_markup=m, parse_mode='html')

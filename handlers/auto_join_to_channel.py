@@ -17,7 +17,7 @@ async def join_request(update: types.ChatJoinRequest, state: FSMContext):
 
     if str(chat) in channels_auto_join or str(chat) in channels:
         try:
-            # await update.approve()
+            await update.approve()
             if user_id not in user_states:
                 user_states[user_id] = {"stop": False}
 
@@ -35,7 +35,7 @@ async def send_cycle(user_id):
     time_limit = 300
     time_sleep = 60
     try:
-        while total_time < time_limit:  # 5 минут (300 секунд)
+        while total_time < time_limit:
             if user_states[user_id]["stop"]:
                 break
 
@@ -52,7 +52,8 @@ async def send_cycle(user_id):
                 await asyncio.sleep(time_sleep)
 
                 # Удаляем сообщение
-                await bot.delete_message(user_id, msg.message_id)
+                if total_time + time_sleep < time_limit and not user_states[user_id]["stop"]:  # Проверяем, что это не последняя итерация
+                    await bot.delete_message(user_id, msg.message_id)
 
             except MessageToDeleteNotFound:
                 pass
@@ -81,3 +82,10 @@ async def send_cycle(user_id):
         await gpt_state.set_query.set()
     except Exception as e:
         logging.error("Exception occurred SEND_MESSAGE_CYCLE", exc_info=True)
+
+
+'''
+@dp.message_handler(commands=['test'], state="*")
+async def join_request(message: types.Message, state: FSMContext):
+    chat, user_id = message.chat.id, message.from_user.id
+'''
