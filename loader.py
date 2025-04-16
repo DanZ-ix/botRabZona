@@ -22,6 +22,7 @@ isChat = filters.IDFilter
 logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s %(name)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 logging.getLogger('aiohttp').setLevel(logging.ERROR)
 
+user_states = {}
 
 dc_api = dc_api.DiscordApi(dc_host_api, server_ip)
 gpt_api = gpt_api.gptApi(gpt_host_api, dialog_max_tokens)

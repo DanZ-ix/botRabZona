@@ -1,0 +1,11 @@
+aiogram==2.25.0
+aioschedule
+pymongo
+motor
+configobj
+websocket-client
+aiofiles
+yoomoney
+pandas_ods_reader
+deep_translator
+requests
