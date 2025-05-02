@@ -77,7 +77,7 @@ async def send_cycle(user_id):
             await bot.send_photo(user_id, file, caption=new_message.caption,
                                  caption_entities=new_message.caption_entities,
                                  reply_markup=new_message.reply_markup, disable_web_page_preview=True)
-        except Exception:
+        except IndexError as e:
             new_message = types.Message.to_object(message_dict)
             await bot.send_message(user_id, new_message.text,
                                    entities=new_message.entities,
