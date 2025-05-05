@@ -14,6 +14,17 @@ async def start(message: types.Message, state: FSMContext):
     if chat in user_states:
         user_states[chat]["stop"] = True
 
+    arg = message.get_args()
+    if arg:
+        user = await connect_bd.mongo_conn.db.users.find_one({'user_id': user_id})
+
+        if user.get('new_user') == True:
+            link = await connect_bd.mongo_conn.db.links.find_one({'link_id': int(arg), 'deleted': False})
+            if link:
+                await connect_bd.mongo_conn.db.links.update_one({'link_id': int(arg)}, {
+                    '$set': {'invited_number': int(link.get('invited_number')) + 1}})
+            await connect_bd.mongo_conn.db.users.update_one({'user_id': user_id}, {'$set': {'new_user': False}})
+
     m = await keyboard.call_gpt()
     await bot.send_message(chat, welcome_message, reply_markup=m, parse_mode='html')
     await start_state.select_neiro.set()
